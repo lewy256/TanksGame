@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Game</title>
+    <style>
+        #menu {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: black;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: center;
+            color: white;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div id="menu">
+        <p style="font-size:96px">
+            Destroy all tanks
+        </p>
+        <p style="font-size:32px">
+            Move: WASD<br/>
+            Jump: SPACE<br/>
+            Look: MOUSE<br/>
+            Shoot: LMB<br/>
+        </p>
+        <p style="font-size:24px">
+            Click to play
+        </p>
+    </div>
+    <script src="../lib/three.js"></script>
+    <script src="../lib/cannon.js"></script>
+    <script src="../lib/PointerLockControls.js"></script>
+    <script src="../lib/MTLLoader.js"></script>
+    <script src="../lib/OBJLoader.js"></script>
+    <script src="../lib/Projector.js"></script>
+    <script src="../lib/Fire.js"></script>
+    <script src="../lib/FireShader.js"></script>
+
+    <script src="tank.js"></script>
+    <script src="world.js"></script>
+    <script src="player.js"></script>
+    <script src="bullet.js"></script>
+    <script>
+        let playerShape, playerBody, world, bullets = [], bulletMeshes = [];
+        let camera, scene, renderer, controls, clock, fires = [], time = Date.now();
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            world.step(1 / 60);//world speed
+
+            // update bullets positions
+            for (let i = 0; i < bullets.length; i++) {
+                bulletMeshes[i].position.copy(bullets[i].position);
+                bulletMeshes[i].quaternion.copy(bullets[i].quaternion);
+            }
+
+            if(clock!==undefined){
+                clock.getDelta();
+
+            }
+
+
+            for (let i = 0; i < fires.length; i++) {
+               fires[i].update(clock.elapsedTime)
+
+            }
+            if(fires.length===5){
+               window.location.reload();
+            }
+
+
+            controls.update(Date.now() - time);
+            time = Date.now();
+
+            renderer.render(scene, camera);
+
+        }
+
+        createWorld();
+        createPlayer();
+        animate();
+
+        window.addEventListener('resize', function (){
+                camera.aspect = window.innerWidth / window.innerHeight;
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            }, false);
+
+        window.addEventListener('click', function (){
+                controls.enabled = true;
+                document.getElementById("menu").remove();
+                document.body.requestPointerLock();
+            }, false);
+
+
+        window.addEventListener("click", moveBullet);
+    </script>
+</body>
+</html>
